@@ -1,12 +1,20 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
+import qt.provider 1.0
 
 ApplicationWindow {
     id: window
-    visible: true
+    visible: false
     width: 640
     height: 480
     title: qsTr("Stack")
+
+    Provider {
+        id: provider
+        onUpdateAvailable: window.visible = true
+    }
+
+    Component.onCompleted: provider.startExecution()
 
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
