@@ -4,17 +4,15 @@ import qt.provider 1.0
 
 ApplicationWindow {
     id: window
-    visible: false
+    visible: true
     width: 640
     height: 480
     title: qsTr("Stack")
 
     Provider {
         id: provider
-        onUpdateAvailable: window.visible = true
+        onUpdateAvailable: stackView.initialItem = mainView
     }
-
-    Component.onCompleted: provider.startExecution()
 
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
@@ -36,7 +34,7 @@ ApplicationWindow {
 
     StackView {
         id: stackView
-        initialItem: mainView
+   //     initialItem: mainView
         anchors.fill: parent
     }
 

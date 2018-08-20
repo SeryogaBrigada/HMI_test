@@ -19,7 +19,6 @@ signals:
 
 public slots:
     void updateAvailableSlot();
-    void startExecution();
 };
 
 #endif // PROVIDER_H
