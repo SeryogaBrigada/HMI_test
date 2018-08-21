@@ -8,6 +8,9 @@ Page {
 
     signal downloadClicked
 
+    property string updates: "— This is new\n— And is also new\n— And that is new"
+    property string totalSize: "1234 MB"
+
     Connections {
         target: downlodButton
         onClicked: downloadClicked()
@@ -35,7 +38,7 @@ Page {
         Label {
             id: discriptionContextLabel
             font.pixelSize: discriptionLabel.font.pixelSize
-            text: "— This is new\n" + "— And is also new\n" + "— And that is new"
+            text: updates
         }
     }
 
@@ -48,7 +51,7 @@ Page {
         Label {
             id: sizeLabel
             font.pixelSize: discriptionLabel.font.pixelSize
-            text: qsTr("Size: ") + "1234 MB"
+            text: qsTr("Size: ") + totalSize
         }
 
         Button {

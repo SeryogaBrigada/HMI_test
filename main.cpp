@@ -1,16 +1,17 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-#include <aktualizr/src/libaktualizr/primary/aktualizr.h>
+#include "provider.h"
+
 
 int main(int argc, char *argv[])
 {
-    Config m_conf("/home/intel/OTA-HMI/HMI_test/aktualizr/config/sota_local.toml");
-    Aktualizr m_art(m_conf);
-
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
+    QCoreApplication::setApplicationName("Aktualizr HMI");
+    QCoreApplication::setApplicationVersion("1.0");
     QGuiApplication app(argc, argv);
+
+    qmlRegisterType<Provider>("qt.provider", 1, 0, "Provider");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
