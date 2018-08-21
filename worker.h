@@ -1,12 +1,12 @@
 #ifndef WORKER_H
 #define WORKER_H
 
-#include <QObject>
+#include <QLocale>
+#include <QThread>
 
 #include <aktualizr/src/libaktualizr/primary/aktualizr.h>
-#include <memory>
 
-class Worker : public QObject
+class Worker : public QThread
 {
     Q_OBJECT
 public:
@@ -14,14 +14,25 @@ public:
     ~Worker() Q_DECL_OVERRIDE;
 
 private:
+    void run() Q_DECL_OVERRIDE;
+    void signalHandler(const std::shared_ptr<event::BaseEvent> &event);
+
     std::unique_ptr<Aktualizr> m_akt;
-    void signalHandler(std::shared_ptr<event::BaseEvent> event);
+    std::vector<Uptane::Target> m_updates;
+
+    QLocale m_locale;
+    QString m_confPath;
 
 signals:
-    void updateAvailable();
+    void updatesAvailable(const QString &updates, const QString &size);
+    void downloadProgress(int value);
+    void downloadComplete();
+    void installComplete();
 
 public slots:
-    void doWork();
+    void checkUpdates();
+    void downloadUpdates();
+    void installUpdates();
 };
 
 #endif // WORKER_H

@@ -8,6 +8,8 @@ Page {
     signal cancelClicked
     signal hideClicked
 
+    property int progress: 75
+
     Connections {
         target: cancelButton
         onClicked: cancelClicked()
@@ -33,9 +35,10 @@ Page {
         anchors.top: topLabel.bottom
         anchors.topMargin: 40
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: topLabel.font.pixelSize
+        font.pixelSize: topLabel.font.pixelSize * 1.5
         font.bold: true
-        text: qsTr("Remaining time ") + 3 + qsTr(" minutes")
+        text: progress + "% " + qsTr("complete")
+        clip: true
     }
 
     ProgressBar {
@@ -44,8 +47,9 @@ Page {
         anchors.topMargin: 20
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width - 120
-        value: 0.75
+        value: progress
         height: 20
+        to: 100
     }
 
     Button {

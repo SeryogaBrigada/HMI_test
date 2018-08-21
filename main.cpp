@@ -3,9 +3,12 @@
 
 #include "provider.h"
 
+
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setApplicationName("Aktualizr HMI");
+    QCoreApplication::setApplicationVersion("1.0");
     QGuiApplication app(argc, argv);
 
     qmlRegisterType<Provider>("qt.provider", 1, 0, "Provider");
