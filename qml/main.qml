@@ -14,8 +14,8 @@ ApplicationWindow {
 
     Provider {
         id: provider
-        onUpdateAvailable: stackView.push(updatesAvailablePage)
         onNoUpdates: stackView.push(noUpdatesAvailablePage)
+        onUpdateAvailable: stackView.push(updatesAvailablePage)
 
         onDownloadComplete: {
             stackView.push(downloadCompletePage)

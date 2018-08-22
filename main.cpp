@@ -1,6 +1,5 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QQmlComponent>
 #include <QQmlContext>
 #include <QScreen>
 
