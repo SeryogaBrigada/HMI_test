@@ -2,8 +2,11 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 
 Page {
-    width: 600
-    height: 400
+    property real scale: 1.0
+    property string estimatedMinutes: "44"
+
+    implicitWidth: 1080 * scale
+    implicitHeight: 1487 * scale
 
     signal installClicked
     signal quitClicked
@@ -21,9 +24,9 @@ Page {
     Label {
         id: topLabel
         anchors.top: parent.top
-        anchors.topMargin: 20
+        anchors.topMargin: 80 * scale
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: Qt.application.font.pixelSize * 1.6
+        font.pixelSize: parent.width / 21
         font.bold: true
         text: qsTr("Download complete")
         color: "#505050"
@@ -32,19 +35,17 @@ Page {
     Column {
         id: attentionItem
         anchors.top: topLabel.bottom
-        anchors.topMargin: 15
-        anchors.left: parent.left
-        anchors.leftMargin: 60
+        anchors.topMargin: 50 * scale
+        anchors.horizontalCenter: parent.horizontalCenter
         visible: false
 
         Label {
-            font.pixelSize: Qt.application.font.pixelSize * 1.1
-            font.bold: true
+            font.pixelSize: topLabel.font.pixelSize * 0.6
             text: qsTr("You are about to start installing update 02")
         }
 
         Label {
-            font.pixelSize: Qt.application.font.pixelSize * 1.6
+            font.pixelSize: topLabel.font.pixelSize * 0.65
             font.bold: true
             text: qsTr("It cannot be aborted once installation gets started.")
         }
@@ -53,20 +54,24 @@ Page {
     Label {
         id: estimatedTimeLabel
         anchors.top: attentionItem.bottom
-        anchors.topMargin: 15
+        anchors.topMargin: 80 * scale
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: topLabel.font.pixelSize
+        font.pixelSize: topLabel.font.pixelSize * 0.75
         font.bold: topLabel.font.bold
-        text: qsTr("Estimated installation time: ") + 44 + qsTr(" minutes")
+        clip: true
+        text: qsTr("Estimated installation time: ") + estimatedMinutes + qsTr(
+                  " minutes")
     }
 
     TextArea {
         id: infoText
         anchors.top: estimatedTimeLabel.bottom
-        anchors.topMargin: 20
-        anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: Qt.application.font.pixelSize * 1.2
-        width: parent.width - 120
+        anchors.topMargin: 40 * scale
+        anchors.left: parent.left
+        anchors.leftMargin: 75 * scale
+        anchors.right: parent.right
+        anchors.rightMargin: 75 * scale
+        font.pixelSize: topLabel.font.pixelSize * 0.7
         wrapMode: Text.WordWrap
         text: qsTr(
                   "Installation will begin 2 minutes after approval has been given, "
@@ -80,10 +85,10 @@ Page {
     Button {
         id: installButton
         anchors.top: infoText.bottom
-        anchors.topMargin: 15
+        anchors.topMargin: 40 * scale
         anchors.left: parent.left
-        anchors.leftMargin: 60
-        font.pixelSize: Qt.application.font.pixelSize * 1.6
+        anchors.leftMargin: 75 * scale
+        font.pixelSize: topLabel.font.pixelSize * 0.8
         width: font.pixelSize * 9
         text: qsTr("INSTALL NOW")
     }
@@ -92,7 +97,7 @@ Page {
         id: quiteButton
         anchors.top: installButton.top
         anchors.right: parent.right
-        anchors.rightMargin: 60
+        anchors.rightMargin: 75 * scale
         font.pixelSize: installButton.font.pixelSize
         text: qsTr("QUIT")
         width: installButton.width
@@ -115,6 +120,11 @@ Page {
             PropertyChanges {
                 target: installButton
                 text: qsTr("CONTINUE")
+            }
+
+            PropertyChanges {
+                target: estimatedTimeLabel
+                anchors.topMargin: 77 * scale
             }
         }
     ]
