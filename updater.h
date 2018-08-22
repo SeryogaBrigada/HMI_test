@@ -6,6 +6,8 @@
 
 #include <aktualizr/src/libaktualizr/primary/aktualizr.h>
 
+namespace bpo = boost::program_options;
+
 class Updater : public QThread
 {
     Q_OBJECT
@@ -16,6 +18,8 @@ public:
 private:
     void run() Q_DECL_OVERRIDE;
     void signalHandler(const std::shared_ptr<event::BaseEvent> &event);
+
+    bpo::variables_map parse_options(const std::vector<std::string> &vector);
 
     std::unique_ptr<Aktualizr> m_akt;
     std::vector<Uptane::Target> m_updates;
