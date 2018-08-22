@@ -5,18 +5,23 @@ import qt.provider 1.0
 ApplicationWindow {
     id: window
     visible: true
-    width: 640
-    height: 480
-    title: qsTr("Aktualizr HMI GUI")
+    title: qsTr("Sachertorte")
+
+    property real scale: applicationScale
+
+    width: 1080 * scale
+    height: 1487 * scale
 
     Provider {
         id: provider
-        onUpdateAvailable: stackView.visible = true
+        onUpdateAvailable: stackView.push(updatesAvailablePage)
+        onNoUpdates: stackView.push(noUpdatesAvailablePage)
+
         onDownloadComplete: {
-            stackView.push(downloadComplete)
+            stackView.push(downloadCompletePage)
             window.visible = true
         }
-        onInstallationComplete: stackView.push(installationComplete)
+        onInstallationComplete: stackView.push(noUpdatesAvailablePage)
     }
 
     header: ToolBar {
@@ -25,42 +30,54 @@ ApplicationWindow {
         ToolButton {
             id: toolButton
             text: stackView.depth > 1 ? "\u2715" : "\u003C     " + qsTr("Update information")
-            font.pixelSize: Qt.application.font.pixelSize * 1.6
+            font.pixelSize: window.width / 21
             font.bold: true
-            onClicked: {
-                if (stackView.depth > 1) {
-                    Qt.quit()
-                } else {
-                    console.log("toolButton clicked")
-                }
-            }
+            onClicked: Qt.quit()
         }
     }
 
     StackView {
         id: stackView
-        initialItem: mainView
+        initialItem: busyPage
         anchors.fill: parent
-        visible: false
+        visible: true
     }
 
     Component {
-        id: mainView
+        id: busyPage
 
-        HomeForm {
+        BusyPageForm {
+            scale: applicationScale
+        }
+    }
+
+    Component {
+        id: noUpdatesAvailablePage
+
+        NoUpdatesForm {
+            scale: applicationScale
+        }
+    }
+
+    Component {
+        id: updatesAvailablePage
+
+        UpdatesAvailableForm {
+            scale: applicationScale
             updates: provider.updates
             totalSize: provider.updateSize
             onDownloadClicked: {
                 provider.downloadUpdates()
-                stackView.push(downloadView)
+                stackView.push(downloadPage)
             }
         }
     }
 
     Component {
-        id: downloadView
+        id: downloadPage
 
         DownloadForm {
+            scale: applicationScale
             progress: provider.downloadProgress
             onCancelClicked: Qt.quit()
             onHideClicked: window.visible = false
@@ -68,30 +85,24 @@ ApplicationWindow {
     }
 
     Component {
-        id: downloadComplete
+        id: downloadCompletePage
 
         DownloadCompleteForm {
+            scale: applicationScale
             onInstallClicked: {
                 provider.installUpdates()
-                stackView.push(installation)
+                stackView.push(installationPage)
             }
             onQuitClicked: Qt.quit()
         }
     }
 
     Component {
-        id: installation
+        id: installationPage
 
         InstallationForm {
+            scale: applicationScale
             onCancelClicked: console.log("Cansel clicked")
-        }
-    }
-
-    Component {
-        id: installationComplete
-
-        InstallationCompleteForm {
-            onQuitClicked: Qt.quit()
         }
     }
 }

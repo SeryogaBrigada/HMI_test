@@ -3,9 +3,10 @@
         <file>qtquickcontrols2.conf</file>
         <file>qml/DownloadCompleteForm.ui.qml</file>
         <file>qml/DownloadForm.ui.qml</file>
-        <file>qml/HomeForm.ui.qml</file>
+        <file>qml/UpdatesAvailableForm.ui.qml</file>
         <file>qml/InstallationForm.ui.qml</file>
         <file>qml/main.qml</file>
-        <file>qml/InstallationCompleteForm.ui.qml</file>
+        <file>qml/NoUpdatesForm.ui.qml</file>
+        <file>qml/BusyPageForm.ui.qml</file>
     </qresource>
 </RCC>

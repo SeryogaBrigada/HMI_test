@@ -5,46 +5,47 @@
 #include <QThread>
 #include <QTimer>
 
-#include "worker.h"
+#include "updater.h"
 
 class Provider : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int downloadProgress READ downloadProgress NOTIFY downloadProgressChanged)
+    Q_PROPERTY(double downloadProgress READ downloadProgress NOTIFY downloadProgressChanged)
     Q_PROPERTY(QString updates READ updates NOTIFY updatesChanged)
     Q_PROPERTY(QString updateSize READ updateSize NOTIFY updateSizeChanged)
 
 public:
     explicit Provider(QObject *parent = nullptr);
 
-    int downloadProgress() const;
+    double downloadProgress() const;
     QString updates() const;
     QString updateSize() const;
 
 private:
-    Worker m_worker;
-    int m_downloadProgress;
+    double  m_downloadProgress;
+    Updater m_updater;
     QString m_updates;
     QString m_updateSize;
-    QTimer *m_timer = nullptr;
+    QTimer  *m_checkUpdateTimer = nullptr;
 
 signals:
     void download();
     void install();
     void updateAvailable();
+    void noUpdates();
     void downloadComplete();
+    void installationComplete();
 
     void downloadProgressChanged();
     void updatesChanged();
     void updateSizeChanged();
-    void installationComplete();
 
 public slots:
     void downloadUpdates();
     void installUpdates();
 
     void updatesAvailableSlot(const QString &updates, const QString &size);
-    void downloadProgressSlot(int value);
+    void downloadProgressSlot(double value);
     void downloadCompleteSlot();
     void installCompleteSlot();
 };

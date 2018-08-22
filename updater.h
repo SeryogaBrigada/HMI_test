@@ -1,17 +1,17 @@
-#ifndef WORKER_H
-#define WORKER_H
+#ifndef UPDATER_H
+#define UPDATER_H
 
 #include <QLocale>
 #include <QThread>
 
 #include <aktualizr/src/libaktualizr/primary/aktualizr.h>
 
-class Worker : public QThread
+class Updater : public QThread
 {
     Q_OBJECT
 public:
-    explicit Worker(QObject *parent = nullptr);
-    ~Worker() Q_DECL_OVERRIDE;
+    explicit Updater(QObject *parent = nullptr);
+    ~Updater() Q_DECL_OVERRIDE;
 
 private:
     void run() Q_DECL_OVERRIDE;
@@ -20,12 +20,13 @@ private:
     std::unique_ptr<Aktualizr> m_akt;
     std::vector<Uptane::Target> m_updates;
 
+    boost::program_options::variables_map m_Map;
+
     QLocale m_locale;
-    QString m_confPath;
 
 signals:
     void updatesAvailable(const QString &updates, const QString &size);
-    void downloadProgress(int value);
+    void downloadProgress(double value);
     void downloadComplete();
     void installComplete();
 
@@ -35,4 +36,4 @@ public slots:
     void installUpdates();
 };
 
-#endif // WORKER_H
+#endif // UPDATER_H
