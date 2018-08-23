@@ -17,7 +17,7 @@ Provider::Provider(QObject *parent) : QObject(parent),
     connect(m_timer, &QTimer::timeout, &m_updater, &Updater::checkUpdates);
 
     m_updater.start();
-    m_timer->start(100);
+    m_timer->start(500);
 
     m_checkUpdateTimer = new QTimer(this);
     m_checkUpdateTimer->setSingleShot(true);
