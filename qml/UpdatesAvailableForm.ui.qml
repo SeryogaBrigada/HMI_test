@@ -65,7 +65,6 @@ Page {
 
         Label {
             font.pixelSize: discriptionLabel.font.pixelSize * 0.6
-            color: "#505050"
             text: qsTr("The download will not interfere with your use of the vehicle.\n"
                        + "Data charges may apply.")
         }

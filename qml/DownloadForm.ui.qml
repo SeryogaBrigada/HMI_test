@@ -3,7 +3,7 @@ import QtQuick.Controls 2.2
 
 Page {
     property real scale: 1.0
-    property int progress: 75
+    property real progress: 75
 
     implicitWidth: 1080 * scale
     implicitHeight: 1487 * scale

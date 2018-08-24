@@ -29,7 +29,6 @@ Page {
         font.pixelSize: parent.width / 21
         font.bold: true
         text: qsTr("Download complete")
-        color: "#505050"
     }
 
     Column {
@@ -54,7 +53,7 @@ Page {
     Label {
         id: estimatedTimeLabel
         anchors.top: attentionItem.bottom
-        anchors.topMargin: 80 * scale
+        anchors.topMargin: 60 * scale
         anchors.horizontalCenter: parent.horizontalCenter
         font.pixelSize: topLabel.font.pixelSize * 0.75
         font.bold: topLabel.font.bold
@@ -72,6 +71,7 @@ Page {
         anchors.right: parent.right
         anchors.rightMargin: 75 * scale
         font.pixelSize: topLabel.font.pixelSize * 0.7
+        color: estimatedTimeLabel.color
         wrapMode: Text.WordWrap
         text: qsTr(
                   "Installation will begin 2 minutes after approval has been given, "
@@ -120,11 +120,6 @@ Page {
             PropertyChanges {
                 target: installButton
                 text: qsTr("CONTINUE")
-            }
-
-            PropertyChanges {
-                target: estimatedTimeLabel
-                anchors.topMargin: 77 * scale
             }
         }
     ]
