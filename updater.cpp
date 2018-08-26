@@ -1,4 +1,5 @@
 #include <QCoreApplication>
+#include <QTimer>
 
 #include "aktualizr/src/libaktualizr/uptane/secondaryfactory.h"
 #include "updater.h"
@@ -15,6 +16,10 @@ Updater::Updater(QObject *parent) : QThread(parent)
 
         m_Map = parse_options(m_list);
     }
+
+    QTimer::singleShot(1000, [this](){
+        m_akt->FetchMetadata();
+    });
 }
 
 Updater::~Updater()
@@ -49,14 +54,13 @@ void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
     static unsigned long m_totalUpdatesCount{};
     static unsigned long m_downloadComplete{};
 
-    if ("UpdateAvailable" == event->variant)
-    {
+    if ("UpdateAvailable" == event->variant) {
         m_updates = static_cast<event::UpdateAvailable *>(event.get())->updates;
         m_totalUpdatesCount = m_updates.size();
 
-        auto caclSize = [=](int64_t size) {
+        auto caclSize = [this](int64_t size) {
             QString prefix;
-            double d_size{};
+            qreal d_size{};
 
             if (size < 1000) {
                 prefix = QStringLiteral(" B");
@@ -90,15 +94,13 @@ void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
 
         emit updatesAvailable(updateInfo, caclSize(totalSize));
     }
-    else if ("DownloadProgressReport" == event->variant)
-    {
+    else if ("DownloadProgressReport" == event->variant) {
         unsigned int m_progress = static_cast<event::DownloadProgressReport *>(event.get())->progress;
 
         Q_ASSERT(m_totalUpdatesCount != 0);
-        emit downloadProgress(static_cast<double>(m_progress) / (m_totalUpdatesCount - m_downloadComplete));
+        emit downloadProgress(static_cast<qreal>(m_progress) / (m_totalUpdatesCount - m_downloadComplete));
     }
-    else if ("DownloadComplete" == event->variant)
-    {
+    else if ("DownloadComplete" == event->variant) {
         m_downloadComplete++;
 
         if (m_downloadComplete == m_totalUpdatesCount) {
@@ -107,19 +109,13 @@ void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
             emit downloadComplete();
         }
     }
-    else if ("InstallComplete" == event->variant)
-    {
+    else if ("InstallComplete" == event->variant) {
         m_totalUpdatesCount = 0;
         m_updates.clear();
         m_akt->FetchMetadata();
 
         emit installComplete();
     }
-}
-
-void Updater::checkUpdates()
-{
-    m_akt->FetchMetadata();
 }
 
 void Updater::downloadUpdates()

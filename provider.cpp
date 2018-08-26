@@ -11,13 +11,7 @@ Provider::Provider(QObject *parent) : QObject(parent),
     connect(this, &Provider::download, &m_updater, &Updater::downloadUpdates);
     connect(this, &Provider::install, &m_updater, &Updater::installUpdates);
 
-    QTimer *m_timer = new QTimer(this);
-    m_timer->setSingleShot(true);
-
-    connect(m_timer, &QTimer::timeout, &m_updater, &Updater::checkUpdates);
-
     m_updater.start();
-    m_timer->start(500);
 
     m_checkUpdateTimer = new QTimer(this);
     m_checkUpdateTimer->setSingleShot(true);
@@ -26,13 +20,13 @@ Provider::Provider(QObject *parent) : QObject(parent),
         emit noUpdates();
     });
 
-    m_checkUpdateTimer->start(5000);
+    m_checkUpdateTimer->start(8000);
 }
 
 
-double Provider::downloadProgress() const
+qreal Provider::downloadProgress() const
 {
-    return m_downloadProgress;
+    return std::round(m_downloadProgress * 10.0) / 10.0;
 }
 
 QString Provider::updates() const
@@ -67,7 +61,7 @@ void Provider::updatesAvailableSlot(const QString &updates, const QString &size)
     emit updateAvailable();
 }
 
-void Provider::downloadProgressSlot(double value)
+void Provider::downloadProgressSlot(qreal value)
 {
     if (!qFuzzyCompare(m_downloadProgress, value))
     {

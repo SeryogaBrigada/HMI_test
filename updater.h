@@ -30,12 +30,11 @@ private:
 
 signals:
     void updatesAvailable(const QString &updates, const QString &size);
-    void downloadProgress(double value);
+    void downloadProgress(qreal value);
     void downloadComplete();
     void installComplete();
 
 public slots:
-    void checkUpdates();
     void downloadUpdates();
     void installUpdates();
 };
