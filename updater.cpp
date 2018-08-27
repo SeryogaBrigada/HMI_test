@@ -12,6 +12,7 @@ Updater::~Updater()
 {
     m_mutex.lock();
     m_quit = true;
+    m_cond.wakeAll();
     m_mutex.unlock();
 
     wait();
@@ -34,39 +35,40 @@ void Updater::run()
     Config m_config(m_Map);
     m_config.uptane.running_mode = RunningMode::kManual;
 
-    std::unique_ptr<Aktualizr> m_akt = std::unique_ptr<Aktualizr>(new Aktualizr(m_config));
+    Aktualizr m_akt(m_config);
 
     if (m_Map.count("secondary")) {
         auto sconfigs = m_Map["secondary"].as<std::vector<boost::filesystem::path>>();
 
         for (const auto &sconf : sconfigs)
-            m_akt->AddSecondary(Uptane::SecondaryFactory::makeSecondary(sconf));
+            m_akt.AddSecondary(Uptane::SecondaryFactory::makeSecondary(sconf));
     }
 
     std::function<void(std::shared_ptr<event::BaseEvent>)> m_handler =
             std::bind(&Updater::signalHandler, this, std::placeholders::_1);
 
-    m_akt->SetSignalHandler(m_handler);
+    m_akt.SetSignalHandler(m_handler);
 
+    m_mutex.lock();
     m_Commands.enqueue(Commands::CheckUpdates);
 
     while (!m_quit) {
-        if (!m_Commands.isEmpty()) {
+        while (!m_Commands.isEmpty()) {
             switch (m_Commands.dequeue()) {
             case Commands::CheckUpdates:
-                m_akt->FetchMetadata();
-                m_akt->SendDeviceData();
+                m_akt.FetchMetadata();
                 break;
             case Commands::DownloadUpdates:
-                m_akt->Download(m_updates);
+                m_akt.Download(m_updates);
                 break;
             case Commands::InstallUpdates:
-                m_akt->Install(m_updates);
+                m_akt.Install(m_updates);
                 break;
             }
         }
+        m_cond.wait(&m_mutex);
     }
-    m_akt->Shutdown();
+    m_akt.Shutdown();
 }
 
 void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
@@ -141,12 +143,16 @@ void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
 
 void Updater::downloadUpdates()
 {
+    const QMutexLocker locker(&m_mutex);
     m_Commands.enqueue(Commands::DownloadUpdates);
+    m_cond.wakeOne();
 }
 
 void Updater::installUpdates()
 {
+    const QMutexLocker locker(&m_mutex);
     m_Commands.enqueue(Commands::InstallUpdates);
+    m_cond.wakeOne();
 }
 
 
