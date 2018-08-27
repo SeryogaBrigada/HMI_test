@@ -4,6 +4,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QQueue>
+#include <QWaitCondition>
 
 #include <aktualizr/src/libaktualizr/primary/aktualizr.h>
 
@@ -26,6 +27,7 @@ private:
     std::vector<Uptane::Target> m_updates;
 
     QMutex m_mutex;
+    QWaitCondition m_cond;
     bool m_quit = false;
 
     enum class Commands
