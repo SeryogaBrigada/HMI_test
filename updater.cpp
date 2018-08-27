@@ -1,12 +1,26 @@
 #include <QCoreApplication>
-#include <QTimer>
+#include <QLocale>
 
 #include "aktualizr/src/libaktualizr/uptane/secondaryfactory.h"
 #include "updater.h"
 
 Updater::Updater(QObject *parent) : QThread(parent)
 {
+}
+
+Updater::~Updater()
+{
+    m_mutex.lock();
+    m_quit = true;
+    m_mutex.unlock();
+
+    wait();
+}
+
+void Updater::run()
+{
     auto m_args = QCoreApplication::arguments();
+    boost::program_options::variables_map m_Map;
 
     if (!m_args.isEmpty()) {
         std::vector<std::string> m_list;
@@ -17,23 +31,10 @@ Updater::Updater(QObject *parent) : QThread(parent)
         m_Map = parse_options(m_list);
     }
 
-    QTimer::singleShot(1000, [this](){
-        m_akt->FetchMetadata();
-    });
-}
-
-Updater::~Updater()
-{
-    m_akt->Shutdown();
-    wait();
-}
-
-void Updater::run()
-{
     Config m_config(m_Map);
     m_config.uptane.running_mode = RunningMode::kManual;
 
-    m_akt = std::unique_ptr<Aktualizr>(new Aktualizr(m_config));
+    std::unique_ptr<Aktualizr> m_akt = std::unique_ptr<Aktualizr>(new Aktualizr(m_config));
 
     if (m_Map.count("secondary")) {
         auto sconfigs = m_Map["secondary"].as<std::vector<boost::filesystem::path>>();
@@ -46,7 +47,26 @@ void Updater::run()
             std::bind(&Updater::signalHandler, this, std::placeholders::_1);
 
     m_akt->SetSignalHandler(m_handler);
-    m_akt->Run();
+
+    m_Commands.enqueue(Commands::CheckUpdates);
+
+    while (!m_quit) {
+        if (!m_Commands.isEmpty()) {
+            switch (m_Commands.dequeue()) {
+            case Commands::CheckUpdates:
+                m_akt->FetchMetadata();
+                m_akt->SendDeviceData();
+                break;
+            case Commands::DownloadUpdates:
+                m_akt->Download(m_updates);
+                break;
+            case Commands::InstallUpdates:
+                m_akt->Install(m_updates);
+                break;
+            }
+        }
+    }
+    m_akt->Shutdown();
 }
 
 void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
@@ -58,7 +78,7 @@ void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
         m_updates = static_cast<event::UpdateAvailable *>(event.get())->updates;
         m_totalUpdatesCount = m_updates.size();
 
-        auto caclSize = [this](int64_t size) {
+        auto caclSize = [](int64_t size) {
             QString prefix;
             qreal d_size{};
 
@@ -79,6 +99,7 @@ void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
                 d_size = size / 1000000000.0;
             }
 
+            QLocale m_locale;
             return m_locale.toString(d_size, 'f', 2) + prefix;
         };
 
@@ -97,7 +118,7 @@ void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
     else if ("DownloadProgressReport" == event->variant) {
         unsigned int m_progress = static_cast<event::DownloadProgressReport *>(event.get())->progress;
 
-        Q_ASSERT(m_totalUpdatesCount != 0);
+        Q_ASSERT(m_totalUpdatesCount != 0 && m_totalUpdatesCount != m_downloadComplete);
         emit downloadProgress(static_cast<qreal>(m_progress) / (m_totalUpdatesCount - m_downloadComplete));
     }
     else if ("DownloadComplete" == event->variant) {
@@ -112,7 +133,7 @@ void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
     else if ("InstallComplete" == event->variant) {
         m_totalUpdatesCount = 0;
         m_updates.clear();
-        m_akt->FetchMetadata();
+        m_Commands.enqueue(Commands::CheckUpdates);
 
         emit installComplete();
     }
@@ -120,12 +141,12 @@ void Updater::signalHandler(const std::shared_ptr<event::BaseEvent> &event)
 
 void Updater::downloadUpdates()
 {
-    m_akt->Download(m_updates);
+    m_Commands.enqueue(Commands::DownloadUpdates);
 }
 
 void Updater::installUpdates()
 {
-    m_akt->Install(m_updates);
+    m_Commands.enqueue(Commands::InstallUpdates);
 }
 
 
