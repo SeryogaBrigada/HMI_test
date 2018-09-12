@@ -23,6 +23,13 @@ Provider::Provider(QObject *parent) : QObject(parent),
     m_checkUpdateTimer->start(8000);
 }
 
+QString Provider::remainingDownloadTime() const {
+  if (qFuzzyCompare(m_downloadProgress, 0.0)) return "0:00";
+
+  QTime t(0, 0, 0, 0);
+  t = t.addMSecs(static_cast<int>(downloadTime_.elapsed() * 100 / m_downloadProgress));
+  return t.toString("m:ss");
+}
 
 qreal Provider::downloadProgress() const
 {
@@ -41,6 +48,7 @@ QString Provider::updateSize() const
 
 void Provider::downloadUpdates()
 {
+    downloadTime_.start();
     emit download();
 }
 
@@ -67,6 +75,7 @@ void Provider::downloadProgressSlot(qreal value)
     {
         m_downloadProgress = value;
         emit downloadProgressChanged();
+        emit remainingDownloadTimeChanged();
     }
 }
 

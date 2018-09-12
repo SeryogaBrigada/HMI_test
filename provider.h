@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QTime>
 #include <QTimer>
 
 #include "updater.h"
@@ -10,7 +11,10 @@
 class Provider : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(qreal   downloadProgress READ downloadProgress NOTIFY downloadProgressChanged)
+    Q_PROPERTY(qreal   downloadProgress READ downloadProgress NOTIFY
+               downloadProgressChanged)
+    Q_PROPERTY(QString remainingDownloadTime READ remainingDownloadTime NOTIFY
+               remainingDownloadTimeChanged)
     Q_PROPERTY(QString updates READ updates NOTIFY updatesChanged)
     Q_PROPERTY(QString updateSize READ updateSize NOTIFY updateSizeChanged)
 
@@ -18,6 +22,7 @@ public:
     explicit Provider(QObject *parent = nullptr);
 
     qreal   downloadProgress() const;
+    QString remainingDownloadTime() const;
     QString updates() const;
     QString updateSize() const;
 
@@ -26,6 +31,7 @@ private:
     QString m_updates;
     QString m_updateSize;
     qreal   m_downloadProgress;
+    QTime   downloadTime_;
     QTimer  *m_checkUpdateTimer = nullptr;
 
 signals:
@@ -36,6 +42,7 @@ signals:
     void downloadComplete();
     void installationComplete();
 
+    void remainingDownloadTimeChanged();
     void downloadProgressChanged();
     void updatesChanged();
     void updateSizeChanged();

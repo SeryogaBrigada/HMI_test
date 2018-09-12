@@ -4,6 +4,7 @@ import QtQuick.Controls 2.2
 Page {
     property real scale: 1.0
     property real progress: 75
+    property string remainingTime: "0:00"
 
     implicitWidth: 1080 * scale
     implicitHeight: 1487 * scale
@@ -33,18 +34,27 @@ Page {
 
     Label {
         id: remainingTimeLabel
+        anchors.top: topLabel.bottom
+        anchors.topMargin: 80 * scale
+        anchors.horizontalCenter: parent.horizontalCenter
+        font.pixelSize: topLabel.font.pixelSize
+        text: qsTr("Remaining time: ") + remainingTime
+        clip: true
+    }
+
+    Label {
+        id: progressLabel
+        anchors.top: remainingTimeLabel.bottom
+        anchors.topMargin: 80 * scale
         anchors.horizontalCenter: parent.horizontalCenter
         font.pixelSize: topLabel.font.pixelSize * 1.5
-        font.bold: true
         text: progress + "% " + qsTr("complete")
-        anchors.verticalCenterOffset: -150 * scale
-        anchors.verticalCenter: parent.verticalCenter
         clip: true
     }
 
     ProgressBar {
         id: progressBar
-        anchors.top: remainingTimeLabel.bottom
+        anchors.top: progressLabel.bottom
         anchors.topMargin: 20 / scale
         anchors.left: parent.left
         anchors.leftMargin: 75 * scale
