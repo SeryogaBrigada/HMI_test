@@ -79,6 +79,7 @@ ApplicationWindow {
         DownloadForm {
             scale: applicationScale
             progress: provider.downloadProgress
+            remainingTime: provider.remainingDownloadTime
             onCancelClicked: Qt.quit()
             onHideClicked: window.visible = false
         }
