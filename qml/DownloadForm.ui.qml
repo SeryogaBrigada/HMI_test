@@ -55,7 +55,7 @@ Page {
     ProgressBar {
         id: progressBar
         anchors.top: progressLabel.bottom
-        anchors.topMargin: 20 / scale
+        anchors.topMargin: 20 * scale
         anchors.left: parent.left
         anchors.leftMargin: 75 * scale
         anchors.right: parent.right
