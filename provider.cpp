@@ -82,6 +82,7 @@ void Provider::downloadProgressSlot(qreal value)
 void Provider::downloadCompleteSlot()
 {
     m_downloadProgress = 0;
+    emit remainingDownloadTimeChanged();
     emit downloadProgressChanged();
     emit downloadComplete();
 }

@@ -68,6 +68,7 @@ void Updater::run()
         }
         m_cond.wait(&m_mutex);
     }
+    m_mutex.unlock();
     m_akt.Shutdown();
 }
 
